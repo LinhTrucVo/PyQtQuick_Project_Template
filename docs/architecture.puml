@@ -1,0 +1,7 @@
+@startuml
+actor User
+User -> main.py : start application
+main.py -> Bico_QUIThread : create thread
+Bico_QUIThread -> Bico_QMutexQueue : enqueue/dequeue messages
+Bico_QUIThread -> QML UI : send/receive signals
+@enduml
