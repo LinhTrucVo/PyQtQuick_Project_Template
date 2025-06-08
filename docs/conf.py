@@ -7,8 +7,8 @@ sys.path.insert(0, os.path.abspath('../src'))
 # -- Project information -----------------------------------------------------
 
 project = 'PyQtQuick_Project_Template'
-copyright = '2024, Your Name'
-author = 'Your Name'
+copyright = '2025, Vo Linh Truc'
+author = 'Bico'
 release = '1.0'
 
 # -- General configuration ---------------------------------------------------
@@ -16,12 +16,17 @@ release = '1.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinxcontrib.plantuml',
 ]
+
+# Path to plantuml.jar
+plantuml = 'java -jar C:/Users/bico/.plantuml/plantuml-1.2025.3.jar'
+plantuml_output_format = 'svg'
 
 templates_path = ['_templates']
 exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']

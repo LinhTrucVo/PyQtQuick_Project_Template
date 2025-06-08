@@ -1,3 +1,12 @@
+"""
+Sample implementation of a QUIThread for demonstration.
+
+Classes
+-------
+Bico_QUIThread_Sample
+    Example subclass of Bico_QUIThread for handling messages and UI events.
+"""
+
 import sys, os
 
 current_path = os.getcwd()
@@ -10,9 +19,20 @@ from Template_Material.bico_quithread import Bico_QUIThread
 from Client_Code.Bico_QUIThread_Sample.Data_Object.Example_Data_Object import Example_Data_Object
 
 class Bico_QUIThread_Sample(Bico_QUIThread):
+    """
+    Example subclass of Bico_QUIThread for handling messages and UI events.
+    """
     i = 0
     ex_data_obj = Example_Data_Object()
     def MainTask(self):
+        """
+        Main task loop for the thread.
+
+        Returns
+        -------
+        int
+            1 to continue, 0 to terminate.
+        """
         continue_to_run = 1
         
         i = 0
