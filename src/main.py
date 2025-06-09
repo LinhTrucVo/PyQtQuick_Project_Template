@@ -22,27 +22,46 @@ if __name__ == "__main__":
 
     Bico_QUIThread.setMainApp(app)
 
-    # Create and start the first thread
     Bico_QUIThread.create(
+        # # Using pure qml
+        # Bico_QUIThread_Sample,
+        # Bico_QMutexQueue(), 
+        # 1, 
+        # Bico_QMutexQueue(), 
+        # 1, 
+        # "task_0", 
+        # os.path.join(current_path, "Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml")
+        
+        # Using qml which is intergrated to Qt resource
         Bico_QUIThread_Sample,
-        Bico_QMutexQueue(), 
+        Bico_QMutexQueue(),
         1, 
         Bico_QMutexQueue(), 
         1, 
         "task_0", 
-        os.path.join(current_path, "Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml")
+        ":/Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml"
     )
     Bico_QUIThread.getThreadHash()["task_0"].start()
     
-    # Create and start the second thread
+
     Bico_QUIThread.create(
+        # # Using pure qml
+        # Bico_QUIThread_Sample,
+        # Bico_QMutexQueue(), 
+        # 1, 
+        # Bico_QMutexQueue(), 
+        # 1, 
+        # "task_1", 
+        # os.path.join(current_path, "Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml")
+        
+        # Using qml which is intergrated to Qt resource
         Bico_QUIThread_Sample,
-        Bico_QMutexQueue(), 
+        Bico_QMutexQueue(),
         1, 
         Bico_QMutexQueue(), 
         1, 
         "task_1", 
-        os.path.join(current_path, "Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml")
+        ":/src/Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml"
     )
     Bico_QUIThread.getThreadHash()["task_1"].start()
 
