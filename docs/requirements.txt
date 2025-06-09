@@ -1,3 +1,4 @@
 sphinx==8.2.3
+PySide6==6.9.0
 sphinxcontrib-plantuml==0.30
 sphinx_rtd_theme==3.0.2
