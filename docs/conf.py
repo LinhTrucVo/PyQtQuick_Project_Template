@@ -20,7 +20,7 @@ extensions = [
 ]
 
 # Path to plantuml.jar
-plantuml = 'java -jar C:/Users/bico/.plantuml/plantuml-1.2025.3.jar'
+plantuml = 'java -jar {}'.format(os.path.join(os.path.dirname(__file__), 'plantuml/plantuml.jar'))
 plantuml_output_format = 'svg'
 
 templates_path = ['_templates']
