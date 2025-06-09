@@ -10,6 +10,7 @@ Welcome to PyQtQuick_Project_Template's documentation.
 
    architecture
    modules
+   rootfiles
 
 Indices and tables
 ==================
