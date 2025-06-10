@@ -15,7 +15,7 @@ A modern template for PyQtQuick/PySide6 projects with multi-threaded QML UI inte
 
 ## 🎨 QML Preview Tools
 
-- [QmlSandbox - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SavenkovIgor.QmlSandboxExtension)  
+- [QmlSandbox - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=SavenkovIgor.QmlSandboxExtension)
   <img src="https://img.icons8.com/color/48/000000/visual-studio-code-2019.png" width="24" alt="VSCode Icon"/>
 - [Online preview of Qt Framework](https://try.qt.io/)
 - [qmlonline](https://patrickelectric.work/qmlonline/)
@@ -41,3 +41,10 @@ python -m venv .venv
 venv\Scripts\activate  # On Windows
 pip install -r venv_requirements.txt
 ```
+
+## Create submodule
+```sh
+cd src/Client_Code/
+py create_client_code.py
+```
+![create_client_code.py](./docs/img/image.png)
