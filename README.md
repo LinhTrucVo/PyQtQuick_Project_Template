@@ -40,6 +40,7 @@ cd QtQuick_Project_Template
 python -m venv .venv
 venv\Scripts\activate  # On Windows
 pip install -r venv_requirements.txt
+build.bat
 ```
 
 ## Create submodule
