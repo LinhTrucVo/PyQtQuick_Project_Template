@@ -37,7 +37,7 @@ A modern template for PyQtQuick/PySide6 projects with multi-threaded QML UI inte
 ```sh
 git clone https://github.com/yourusername/QtQuick_Project_Template.git
 cd QtQuick_Project_Template
-python -m venv venv
+python -m venv .venv
 venv\Scripts\activate  # On Windows
-pip install -r [venv_requirements.txt](http://_vscodecontentref_/0)
+pip install -r venv_requirements.txt
 ```
