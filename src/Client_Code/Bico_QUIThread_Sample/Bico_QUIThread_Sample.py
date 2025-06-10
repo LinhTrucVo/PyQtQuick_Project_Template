@@ -58,7 +58,7 @@ class Bico_QUIThread_Sample(Bico_QUIThread):
 
         print("Hello from " + self.objectName())
         print("Num of running thread: " + str(len(Bico_QUIThread.getThreadHash())))
-        # self.msleep(100)
+        self.msleep(100)
 
         if ((self.objectName() == "task_1") and (Bico_QUIThread.getThreadHash().get("task_0") != None)):
             self.i += 1

@@ -44,7 +44,7 @@ if __name__ == "__main__":
     Bico_QUIThread.getThreadHash()["task_0"].start()
     
 
-    Bico_QUIThread.create(
+    # Bico_QUIThread.create(
         # # Using pure qml
         # Bico_QUIThread_Sample,
         # Bico_QMutexQueue(), 
@@ -54,15 +54,15 @@ if __name__ == "__main__":
         # "task_1", 
         # os.path.join(current_path, "Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml")
         
-        # Using qml which is intergrated to Qt resource
-        Bico_QUIThread_Sample,
-        Bico_QMutexQueue(),
-        1, 
-        Bico_QMutexQueue(), 
-        1, 
-        "task_1", 
-        ":/src/Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml"
-    )
-    Bico_QUIThread.getThreadHash()["task_1"].start()
+        # # Using qml which is intergrated to Qt resource
+        # Bico_QUIThread_Sample,
+        # Bico_QMutexQueue(),
+        # 1, 
+        # Bico_QMutexQueue(), 
+        # 1, 
+        # "task_1", 
+        # ":/src/Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml"
+    # )
+    # Bico_QUIThread.getThreadHash()["task_1"].start()
 
     sys.exit(app.exec())
