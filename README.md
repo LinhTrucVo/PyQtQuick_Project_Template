@@ -35,10 +35,10 @@ A modern template for PyQtQuick/PySide6 projects with multi-threaded QML UI inte
 ## 📦 Quick Start
 
 ```sh
-git clone https://github.com/yourusername/QtQuick_Project_Template.git
-cd QtQuick_Project_Template
+git clone [https://github.com/yourusername/QtQuick_Project_Template.git](https://github.com/LinhTrucVo/PyQtQuick_Project_Template.git)
+cd PyQtQuick_Project_Template
 python -m venv .venv
-venv\Scripts\activate  # On Windows
+.venv\Scripts\activate  # On Windows
 pip install -r venv_requirements.txt
 build.bat
 ```
@@ -46,6 +46,6 @@ build.bat
 ## Create submodule
 ```sh
 cd src/Client_Code/
-py create_client_code.py
+python create_client_code.py
 ```
 ![create_client_code.py](./docs/img/image.png)
