@@ -37,10 +37,13 @@ A modern template for PyQtQuick/PySide6 projects with multi-threaded QML UI inte
 ```sh
 git clone https://github.com/LinhTrucVo/PyQtQuick_Project_Template.git
 cd PyQtQuick_Project_Template
-python -m venv .venv
-.venv\Scripts\activate  # On Windows
+# python -m venv .venv
+# .venv\Scripts\activate  # On Windows
+conda create --name PyQtQuick_Project_Template_env python=3.11 -y
+conda activate PyQtQuick_Project_Template_env
 pip install -r venv_requirements.txt
 build.bat
+
 ```
 
 ## Create submodule
