@@ -8,8 +8,8 @@ import sys
 import os
 from PySide6.QtGui import QGuiApplication
 
-from .bico_qmutexqueue import Bico_QMutexQueue
-from .bico_quithread import Bico_QUIThread
+from PyQtLib_Project_Template.src.bico_qmutexqueue import Bico_QMutexQueue
+from PyQtLib_Project_Template.src.bico_quithread import Bico_QUIThread
 from Client_Code.Bico_QUIThread_Sample.Bico_QUIThread_Sample import Bico_QUIThread_Sample
 
 current_path = os.getcwd()
@@ -44,25 +44,25 @@ if __name__ == "__main__":
     Bico_QUIThread.getThreadHash()["task_0"].start()
     
 
-    # Bico_QUIThread.create(
+    Bico_QUIThread.create(
         # # Using pure qml
         # Bico_QUIThread_Sample,
         # Bico_QMutexQueue(), 
         # 1, 
         # Bico_QMutexQueue(), 
         # 1, 
-        # "task_1", 
+        # "task_0", 
         # os.path.join(current_path, "Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml")
         
-        # # Using qml which is intergrated to Qt resource
-        # Bico_QUIThread_Sample,
-        # Bico_QMutexQueue(),
-        # 1, 
-        # Bico_QMutexQueue(), 
-        # 1, 
-        # "task_1", 
-        # ":/src/Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml"
-    # )
-    # Bico_QUIThread.getThreadHash()["task_1"].start()
+        # Using qml which is intergrated to Qt resource
+        Bico_QUIThread_Sample,
+        Bico_QMutexQueue(),
+        1, 
+        Bico_QMutexQueue(), 
+        1, 
+        "task_1", 
+        ":/Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml"
+    )
+    Bico_QUIThread.getThreadHash()["task_1"].start()
 
     sys.exit(app.exec())
