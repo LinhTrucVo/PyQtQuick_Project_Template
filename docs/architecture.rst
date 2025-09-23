@@ -33,7 +33,7 @@ Components
 Thread Communication
 --------------------
 
-Threads communicate using :class:`Template_Material.bico_qmutexqueue.Bico_QMutexQueue` and :class:`Template_Material.bico_qmessdata.Bico_QMessData`.
+Threads communicate using :class:`.bico_qmutexqueue.Bico_QMutexQueue` and :class:`.bico_qmessdata.Bico_QMessData`.
 
 .. uml::
 

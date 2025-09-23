@@ -13,9 +13,9 @@ current_path = os.getcwd()
 
 from PySide6.QtGui import QGuiApplication
 
-from Template_Material.bico_qmessdata import Bico_QMessData
-from Template_Material.bico_qmutexqueue import Bico_QMutexQueue
-from Template_Material.bico_quithread import Bico_QUIThread
+from .bico_qmessdata import Bico_QMessData
+from .bico_qmutexqueue import Bico_QMutexQueue
+from .bico_quithread import Bico_QUIThread
 from Client_Code.Bico_QUIThread_Sample.Data_Object.Example_Data_Object import Example_Data_Object
 
 class Bico_QUIThread_Sample(Bico_QUIThread):

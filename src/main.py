@@ -8,8 +8,8 @@ import sys
 import os
 from PySide6.QtGui import QGuiApplication
 
-from Template_Material.bico_qmutexqueue import Bico_QMutexQueue
-from Template_Material.bico_quithread import Bico_QUIThread
+from .bico_qmutexqueue import Bico_QMutexQueue
+from .bico_quithread import Bico_QUIThread
 from Client_Code.Bico_QUIThread_Sample.Bico_QUIThread_Sample import Bico_QUIThread_Sample
 
 current_path = os.getcwd()
