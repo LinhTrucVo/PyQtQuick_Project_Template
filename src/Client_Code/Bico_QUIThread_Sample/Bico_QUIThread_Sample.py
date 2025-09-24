@@ -9,14 +9,14 @@ Bico_QUIThread_Sample
 
 from lib import Bico_QMessData
 from lib import Bico_QUIThread
-from .Data_Object.Example_Data_Object import Example_Data_Object
+from .Data_Object.Bico_QUIThread_Sample_Data import Bico_QUIThread_Sample_Data
 
 class Bico_QUIThread_Sample(Bico_QUIThread):
     """
     Example subclass of Bico_QUIThread for handling messages and UI events.
     """
     i = 0
-    ex_data_obj = Example_Data_Object()
+    ex_data_obj = Bico_QUIThread_Sample_Data()
     def MainTask(self):
         """
         Main task loop for the thread.

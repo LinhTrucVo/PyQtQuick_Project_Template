@@ -22,7 +22,7 @@ Components
     * **Bico_QUIThread_Sample.py**: Example implementation of a QUIThread for demonstration.
     * **Data_Object/**
 
-      * **Example_Data_Object.py**: Example data object used in the sample thread.
+      * **Bico_QUIThread_Sample_Data.py**: Example data object used in the sample thread.
 
 * **resource/**: Handles resource integration for QML files (e.g., icons, QML resources).
 * **docs/**: Sphinx documentation sources, including architecture and module references.

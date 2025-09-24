@@ -19,5 +19,5 @@ Module Reference
 .. automodule:: Client_Code.Bico_QUIThread_Sample.Bico_QUIThread_Sample
    :members:
 
-.. automodule:: Client_Code.Bico_QUIThread_Sample.Data_Object.Example_Data_Object
+.. automodule:: Client_Code.Bico_QUIThread_Sample.Data_Object.Bico_QUIThread_Sample_Data
    :members:

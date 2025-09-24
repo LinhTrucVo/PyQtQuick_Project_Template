@@ -22,22 +22,25 @@ def createTaskCode(src_task_name, dst_task_name):
 
     shutil.copytree(src_folder, dst_folder)
 
-    for filename in os.listdir(dst_folder):
-        if filename != os.path.basename(__file__):
-            full_file_name = os.path.join(dst_folder, filename)
-            if os.path.isfile(full_file_name):
-                file = open(full_file_name)
-                file_content = file.read()
-                new_file_content = file_content.replace(src_task_name, dst_task_name)
-                new_file_content = new_file_content.replace(src_task_name.upper(), dst_task_name.upper())
-                file.close()
+    # Process files recursively in all subdirectories
+    for root, dirs, files in os.walk(dst_folder):
+        for filename in files:
+            print(filename)
+            if filename != os.path.basename(__file__):
+                full_file_name = os.path.join(root, filename)
+                if os.path.isfile(full_file_name):
+                    file = open(full_file_name)
+                    file_content = file.read()
+                    new_file_content = file_content.replace(src_task_name, dst_task_name)
+                    new_file_content = new_file_content.replace(src_task_name.upper(), dst_task_name.upper())
+                    file.close()
 
-                file = open(full_file_name, "w+")
-                file.write(new_file_content)
-                file.close()
+                    file = open(full_file_name, "w+")
+                    file.write(new_file_content)
+                    file.close()
 
-                temp_str = full_file_name.replace(src_task_name, dst_task_name)
-                os.rename(full_file_name, temp_str)
+                    temp_str = full_file_name.replace(src_task_name, dst_task_name)
+                    os.rename(full_file_name, temp_str)
 
     if len(sys.argv) == 1:
         QApplication.instance().quit()
