@@ -14,6 +14,7 @@ If you already cloned the repository without submodules, initialize them:
 ```bash
 git submodule update --init --recursive
 ```
+
 or update them:
 
 ```bash
@@ -35,8 +36,6 @@ This project uses the following submodules:
 - **PyQtLib_Project_Template**: Core PyQt threading and messaging library
   - Repository: https://github.com/LinhTrucVo/PyQtLib_Project_Template.git
   - Path: `src/PyQtLib_Project_Template`
-
-
 
 # OLD-------------------------------------------------------------
 
@@ -89,8 +88,10 @@ build.bat
 ```
 
 ## Create submodule
+
 ```sh
-cd src/Client_Code/
+cd src/lib/PyQtLib_Project_Template/tool
 python create_client_code.py
 ```
+
 ![create_client_code.py](./docs/img/image.png)
