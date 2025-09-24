@@ -7,7 +7,7 @@
 # - build/: Application build output
 # - dist/: Distribution packages
 
-# **/.vscode/
+**/.vscode/
 **/__pycache__/
 docs/_build/
 build/
