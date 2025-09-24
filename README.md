@@ -93,5 +93,3 @@ build.bat
 cd src/lib/PyQtLib_Project_Template/tool
 python create_client_code.py
 ```
-
-![create_client_code.py](./docs/img/image.png)
