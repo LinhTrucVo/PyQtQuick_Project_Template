@@ -7,17 +7,11 @@ Bico_QUIThread
     Thread class for running tasks with QML UI integration.
 """
 
-import sys
-import os
-current_path = os.getcwd()
-
 from PySide6.QtCore import QThread, QMutex, Signal, Slot
 from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtGui import QGuiApplication
 
-from .PyQtLib_Project_Template.src.bico_qthread import Bico_QThread
-from .PyQtLib_Project_Template.src.bico_qmutexqueue import Bico_QMutexQueue
-from .PyQtLib_Project_Template.src.bico_qmessdata import Bico_QMessData
+from .PyQtLib_Project_Template import Bico_QThread
+from .PyQtLib_Project_Template import Bico_QMessData
 
 class Bico_QUIThread(QThread, Bico_QThread):
     """

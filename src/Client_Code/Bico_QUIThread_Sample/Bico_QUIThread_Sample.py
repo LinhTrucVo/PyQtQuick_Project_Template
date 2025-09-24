@@ -7,16 +7,9 @@ Bico_QUIThread_Sample
     Example subclass of Bico_QUIThread for handling messages and UI events.
 """
 
-import sys, os
-
-current_path = os.getcwd()
-
-from PySide6.QtGui import QGuiApplication
-
-from lib.PyQtLib_Project_Template import Bico_QMessData
-from lib.PyQtLib_Project_Template import Bico_QMutexQueue
-from lib.bico_quithread import Bico_QUIThread
-from Client_Code.Bico_QUIThread_Sample.Data_Object.Example_Data_Object import Example_Data_Object
+from lib import Bico_QMessData
+from lib import Bico_QUIThread
+from .Data_Object.Example_Data_Object import Example_Data_Object
 
 class Bico_QUIThread_Sample(Bico_QUIThread):
     """

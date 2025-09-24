@@ -8,12 +8,13 @@ import sys
 import os
 from PySide6.QtGui import QGuiApplication
 
-from lib.PyQtLib_Project_Template import Bico_QMutexQueue
-from lib.bico_quithread import Bico_QUIThread
+from lib import Bico_QMutexQueue
+from lib import Bico_QUIThread
 from Client_Code.Bico_QUIThread_Sample.Bico_QUIThread_Sample import Bico_QUIThread_Sample
 
 current_path = os.getcwd()
 
+# Import the qml resource, do not delete this import
 import resource.resource
 
 if __name__ == "__main__":
