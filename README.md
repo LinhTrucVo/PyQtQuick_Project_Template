@@ -87,7 +87,7 @@ build.bat
 
 ```
 
-## Create submodule
+## Create Code
 
 ```sh
 cd src/lib/PyQtLib_Project_Template/tool
