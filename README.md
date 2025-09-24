@@ -93,3 +93,4 @@ build.bat
 cd src/lib/PyQtLib_Project_Template/tool
 python create_client_code.py
 ```
+<img width="267" height="182" alt="image" src="https://github.com/user-attachments/assets/885496ec-484c-4872-a762-7ae00c5685a8" />
