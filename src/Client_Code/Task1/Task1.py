@@ -3,20 +3,20 @@ Sample implementation of a QUIThread for demonstration.
 
 Classes
 -------
-Task_1
+Task1
     Example subclass of Bico_QUIThread for handling messages and UI events.
 """
 
 from lib import Bico_QMessData
 from lib import Bico_QUIThread
-from .Data_Object.Task_1_Data import Task_1_Data
+from .Data_Object.Task1_Data import Task1_Data
 
-class Task_1(Bico_QUIThread):
+class Task1(Bico_QUIThread):
     """
     Example subclass of Bico_QUIThread for handling messages and UI events.
     """
     i = 0
-    ex_data_obj = Task_1_Data()
+    ex_data_obj = Task1_Data()
     def MainTask(self):
         """
         Main task loop for the thread.

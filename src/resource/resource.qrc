@@ -6,7 +6,10 @@
 
 <RCC>
     <qresource prefix="/">
-        <file>../Client_Code/Bico_QUIThread_Sample/Bico_QUIThread_Sample.qml</file>
-        <file>../Client_Code/Task_1/Task_1.qml</file>
+        <file>../Client_Code/Task1/UI/Task1Content/App.qml</file>
+        <file>../Client_Code/Task1/UI/Task1/MyComponents/ModernButton/ModernButton.qml</file>
+        <file>../Client_Code/Task1/UI/Task1/MyComponents/ModernButton/WrapperModernButton.qml</file>
+        <file>../Client_Code/Task1/UI/Task1/OtherComponents/ModernButton/ModernButton.qml</file>
+        <file>../Client_Code/Task1/UI/Task1/OtherComponents/ModernButton/OtherComponentsWrapperModernButton.qml</file>
     </qresource>
 </RCC>

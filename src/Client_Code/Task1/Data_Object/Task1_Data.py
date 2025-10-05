@@ -3,11 +3,11 @@ Example data object for demonstration purposes.
 
 Classes
 -------
-Bico_QUIThread_Sample_Data
+Task1_Data
     Simple class with two data fields and getter/setter methods.
 """
 
-class Bico_QUIThread_Sample_Data:
+class Task1_Data:
     """
     Simple class with two data fields and getter/setter methods.
     """

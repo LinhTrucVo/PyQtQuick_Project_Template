@@ -12,6 +12,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 from .PyQtLib_Project_Template import Bico_QThread
 from .PyQtLib_Project_Template import Bico_QMessData
+from PySide6.QtCore import QDirIterator
 
 class Bico_QUIThread(QThread, Bico_QThread):
     """
@@ -83,6 +84,9 @@ class Bico_QUIThread(QThread, Bico_QThread):
         """
         if (self._ui_path != "") and (self._ui_path != None):
             self._engine = QQmlApplicationEngine()
+            # qrc = QDirIterator(":", QDirIterator.Subdirectories)
+            # while qrc.hasNext():
+            #     self._engine.addImportPath(qrc.next())
             self._engine.load(self._ui_path)
             self.toUI.connect(self._engine.rootObjects()[0].fromThread)
             self._engine.rootObjects()[0].toThread.connect(self.fromUI)
