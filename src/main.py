@@ -44,7 +44,7 @@ if __name__ == "__main__":
         Bico_QMutexQueue(), 
         1, 
         "task_0", 
-        ":/Client_Code/Task1/UI/Task1Content/App.qml"
+        "qrc:/Client_Code/Task1/UI/Task1Content/App.qml"
     )
     Bico_QUIThread.getThreadHash()["task_0"].start()
     
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     #     Bico_QMutexQueue(), 
     #     1, 
     #     "task_1", 
-    #     ":/Client_Code/Task1/UI/Task1Content/App.qml"
+    #     "qrc:/Client_Code/Task1/UI/Task1Content/App.qml"
     # )
     # Bico_QUIThread.getThreadHash()["task_1"].start()
 #  ------------------------------------------------------------------------------
