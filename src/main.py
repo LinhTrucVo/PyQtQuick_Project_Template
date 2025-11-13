@@ -35,7 +35,7 @@ if __name__ == "__main__":
         # Bico_QMutexQueue(), 
         # 1, 
         # "task_0", 
-        # os.path.join(current_path, "Client_Code/Task1/Task1.qml")
+        # os.path.join(current_path, "Client_Code/Task1/UI/Task1Content/App.qml")
         
         # Using qml which is intergrated to Qt resource
         Task1,

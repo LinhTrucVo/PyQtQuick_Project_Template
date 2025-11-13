@@ -6,7 +6,10 @@
 
 <RCC>
     <qresource prefix="/">
+        <file>../Client_Code/Task1/UI/Task1/Constants/Constants.qml</file>
+        <file>../Client_Code/Task1/UI/Task1/Constants/qmldir</file>
         <file>../Client_Code/Task1/UI/Task1Content/App.qml</file>
+        <file>../Client_Code/Task1/UI/Task1Content/Screen01.qml</file>
         <file>../Client_Code/Task1/UI/Task1/MyComponents/ModernButton/ModernButton.qml</file>
         <file>../Client_Code/Task1/UI/Task1/MyComponents/ModernButton/WrapperModernButton.qml</file>
         <file>../Client_Code/Task1/UI/Task1/OtherComponents/ModernButton/ModernButton.qml</file>
