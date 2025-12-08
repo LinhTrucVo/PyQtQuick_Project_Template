@@ -7,12 +7,32 @@ Bico_QUIThread
     Thread class for running tasks with QML UI integration.
 """
 
-from PySide6.QtCore import QThread, QMutex, Signal, Slot
+from PySide6.QtCore import QObject, QThread, QMutex, Signal, Slot, QMetaObject, Qt, Q_ARG
 from PySide6.QtQml import QQmlApplicationEngine
 
 from .PyQtLib_Project_Template import Bico_QThread
 from .PyQtLib_Project_Template import Bico_QMessData
-from PySide6.QtCore import QDirIterator
+
+class EngineLoader(QObject):
+    def __init__(self):
+        super().__init__()
+    
+    @Slot('QObject*', str, 'QThread::Priority')
+    def createEngine(self, thread, ui_path, priority):
+        thread._engine = QQmlApplicationEngine()
+        thread._engine.load(ui_path)
+
+        if thread._engine.rootObjects():
+            root = thread._engine.rootObjects()[0]
+
+            root.toThread.connect(thread.fromUI, Qt.QueuedConnection)
+            thread.toUI.connect(root.fromThread, Qt.QueuedConnection)
+        else:
+            thread._engine = None
+
+        QThread.start(thread, priority)
+
+engine_loader = EngineLoader()
 
 class Bico_QUIThread(QThread, Bico_QThread):
     """
@@ -31,8 +51,6 @@ class Bico_QUIThread(QThread, Bico_QThread):
     thread_hash_mutex = QMutex()
     main_app = None
     toUI = Signal(str, "QVariant")
-    
-    x = 0
 
     def __init__(self, qin=None, qin_owner=0, qout=None, qout_owner=0, obj_name="", ui_path="", parent=None):
         """
@@ -62,8 +80,13 @@ class Bico_QUIThread(QThread, Bico_QThread):
         __class__.thread_hash[obj_name] = self
         __class__.thread_hash_mutex.unlock()
         self._ui_path = ui_path
+        self._engine = None
         self.finished.connect(lambda: __class__.selfRemove(obj_name))
-        __class__.x = 5
+
+        # Move this thread object to the main thread for proper signal handling
+        # without this, the connection from thread to UI in EngineLoader.createEngine will not work
+        if __class__.main_app is not None:
+            self.moveToThread(__class__.main_app.thread())
         
     def __del__(self):
         """
@@ -82,15 +105,26 @@ class Bico_QUIThread(QThread, Bico_QThread):
         priority : QThread.Priority
             Thread priority.
         """
-        if (self._ui_path != "") and (self._ui_path != None):
-            self._engine = QQmlApplicationEngine()
+        if (self._ui_path != None) and (self._ui_path != ""):
             # qrc = QDirIterator(":", QDirIterator.Subdirectories)
             # while qrc.hasNext():
             #     self._engine.addImportPath(qrc.next())
-            self._engine.load(self._ui_path)
-            self.toUI.connect(self._engine.rootObjects()[0].fromThread)
-            self._engine.rootObjects()[0].toThread.connect(self.fromUI)
-        QThread.start(self, priority)
+
+            # Can not create QQmlApplicationEngine directly if this "start" func
+            # is called by worker Thread (not main thread), because
+            # QQmlApplicationEngine must be created in main thread.
+            # That why using QMetaObject.invokeMethod to call createEngine
+            # which is a slot in EngineLoader object living in main thread (globally).
+            QMetaObject.invokeMethod(
+                engine_loader,              # object in main thread
+                "createEngine",         # method to call (must be slot or invokable)
+                Qt.QueuedConnection,    # direct call since we're on main thread
+                Q_ARG("QObject*", self),    # pass thread object
+                Q_ARG(str, self._ui_path),  # pass UI path
+                Q_ARG("QThread::Priority", priority)  # pass priority enum
+            )
+        else:
+            QThread.start(self, priority)
 
     def MainTask(self):
         """
