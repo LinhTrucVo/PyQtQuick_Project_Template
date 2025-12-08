@@ -7,8 +7,10 @@ Task1
     Example subclass of Bico_QUIThread for handling messages and UI events.
 """
 
+import random
 from lib import Bico_QMessData
 from lib import Bico_QUIThread
+from lib import Bico_QMutexQueue
 from .Data_Object.Task1_Data import Task1_Data
 
 class Task1(Bico_QUIThread):
@@ -42,7 +44,20 @@ class Task1(Bico_QUIThread):
                 print(self.objectName() + " " + mess + " " + str(self.ex_data_obj.getData_2()))
             elif (mess == "text"):
                 print(self.objectName() + " " + mess + " " + data)
-                self.toUI.emit(mess, data)
+            elif (mess == "create"):
+                print(self.objectName() + " " + mess + " " + data)
+                random_id = random.randint(1000,9999)
+                Bico_QUIThread.create(
+                    # Using qml which is intergrated to Qt resource
+                    Task1,
+                    Bico_QMutexQueue(),
+                    1, 
+                    Bico_QMutexQueue(), 
+                    1, 
+                    "subtask_"+str(random_id), 
+                    "qrc:/Client_Code/Task1/UI/Task1Content/App.qml"
+                )
+                Bico_QUIThread.getThreadHash()["subtask_"+str(random_id)].start()
             elif (mess == "size"):
                 print(self.objectName() + " " + mess + " " + str(data.width()) + str(data.height()))
                 self.toUI.emit(mess, data)
