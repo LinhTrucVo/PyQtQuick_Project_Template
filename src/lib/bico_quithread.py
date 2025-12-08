@@ -118,7 +118,7 @@ class Bico_QUIThread(QThread, Bico_QThread):
             QMetaObject.invokeMethod(
                 engine_loader,              # object in main thread
                 "createEngine",         # method to call (must be slot or invokable)
-                Qt.QueuedConnection,    # direct call since we're on main thread
+                Qt.QueuedConnection,    # don't know why QueuedConnection, but if using Direct and Blocking option, the software will be freezed not response
                 Q_ARG("QObject*", self),    # pass thread object
                 Q_ARG(str, self._ui_path),  # pass UI path
                 Q_ARG("QThread::Priority", priority)  # pass priority enum
