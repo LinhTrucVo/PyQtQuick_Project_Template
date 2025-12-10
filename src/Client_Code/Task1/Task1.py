@@ -19,6 +19,29 @@ class Task1(Bico_QUIThread):
     """
     i = 0
     ex_data_obj = Task1_Data()
+
+    def __init__(self, qin=None, qin_owner=0, qout=None, qout_owner=0, obj_name="", ui_path="", parent=None):
+        """
+        Initialize Task1 with a list to track child threads.
+        """
+        super().__init__(qin, qin_owner, qout, qout_owner, obj_name, ui_path, parent)
+        self.child_threads = []
+
+    def __del__(self):
+        """
+        Destructor with custom cleanup logic.
+        """
+        # Clean up child threads by sending terminate message
+        for child_name in self.child_threads:
+            thread = Bico_QUIThread.getThreadHash().get(child_name)
+            if thread is not None:
+                mess_data = Bico_QMessData("terminate", "")
+                thread.qinEnqueue(mess_data)
+        
+        # Call parent destructor if it exists
+        if hasattr(super(), '__del__'):
+            super().__del__()
+            
     def MainTask(self):
         """
         Main task loop for the thread.
@@ -47,6 +70,7 @@ class Task1(Bico_QUIThread):
             elif (mess == "create"):
                 print(self.objectName() + " " + mess + " " + data)
                 random_id = random.randint(1000,9999)
+                thread_name = "subtask_"+str(random_id)
                 Bico_QUIThread.create(
                     # Using qml which is intergrated to Qt resource
                     Task1,
@@ -54,10 +78,27 @@ class Task1(Bico_QUIThread):
                     1, 
                     Bico_QMutexQueue(), 
                     1, 
-                    "subtask_"+str(random_id), 
+                    thread_name, 
                     "qrc:/Client_Code/Task1/UI/Task1Content/App.qml"
                 )
-                Bico_QUIThread.getThreadHash()["subtask_"+str(random_id)].start()
+                Bico_QUIThread.getThreadHash()[thread_name].start()
+            elif (mess == "create_child"):
+                print(self.objectName() + " " + mess + " " + data)
+                random_id = random.randint(1000,9999)
+                thread_name = "subtask_"+str(random_id)
+                Bico_QUIThread.create(
+                    # Using qml which is intergrated to Qt resource
+                    Task1,
+                    Bico_QMutexQueue(),
+                    1, 
+                    Bico_QMutexQueue(), 
+                    1, 
+                    thread_name, 
+                    "qrc:/Client_Code/Task1/UI/Task1Content/App.qml"
+                )
+                Bico_QUIThread.getThreadHash()[thread_name].start()
+                # Add child thread to the list for cleanup
+                self.child_threads.append(thread_name)
             elif (mess == "size"):
                 print(self.objectName() + " " + mess + " " + str(data.width()) + str(data.height()))
                 self.toUI.emit(mess, data)
