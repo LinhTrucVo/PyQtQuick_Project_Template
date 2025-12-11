@@ -207,10 +207,10 @@ class Bico_QUIThread(QThread, Bico_QThread):
         obj_name : str
         """
         __class__.thread_hash_mutex.lock()
-        obj = __class__.thread_hash.pop(objectName)
+        obj = __class__.thread_hash.pop(objectName, None)
         __class__.thread_hash_mutex.unlock()
         
-        if obj._ui_path != "" and obj._engine is not None:
+        if obj is not None and obj._ui_path != "" and obj._engine is not None:
             root_object = None
             if obj._engine.rootObjects():
                 root_object = obj._engine.rootObjects()[0]
@@ -219,7 +219,8 @@ class Bico_QUIThread(QThread, Bico_QThread):
                 obj.toUI.disconnect(root_object.fromThread)
                 root_object.toThread.disconnect(obj.fromUI)
 
-            del obj._engine
+            # Use deleteLater() instead of del for Qt objects - safer for cross-thread cleanup
+            obj._engine.deleteLater()
             obj._engine = None
 
     @Slot(str, "QVariant")
