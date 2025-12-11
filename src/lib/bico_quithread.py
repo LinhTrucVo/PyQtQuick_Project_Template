@@ -73,8 +73,20 @@ class Bico_QUIThread(QThread, Bico_QThread):
         parent : QObject
             Parent object.
         """
-        QThread.__init__(self, parent)
+        QThread.__init__(self, None)
         Bico_QThread.__init__(self, qin, qin_owner, qout, qout_owner)
+        
+        # Move this thread object to the main thread for proper signal handling
+        # without this, the connection from thread to UI in EngineLoader.createEngine will not work
+        if __class__.main_app is not None:
+            self.moveToThread(__class__.main_app.thread())
+        
+        # Set parent after moveToThread to ensure proper thread affinity
+        # Otherwise, the parent-child relationship is not correctly established in mainapp_context
+        # -> in that case, parent will have no children
+        if parent is not None:
+            self.setParent(parent)
+        
         self.setObjectName(obj_name)
         __class__.thread_hash_mutex.lock()
         __class__.thread_hash[obj_name] = self
@@ -82,11 +94,6 @@ class Bico_QUIThread(QThread, Bico_QThread):
         self._ui_path = ui_path
         self._engine = None
         self.finished.connect(lambda: __class__.selfRemove(obj_name))
-
-        # Move this thread object to the main thread for proper signal handling
-        # without this, the connection from thread to UI in EngineLoader.createEngine will not work
-        if __class__.main_app is not None:
-            self.moveToThread(__class__.main_app.thread())
         
     def __del__(self):
         """
@@ -144,6 +151,8 @@ class Bico_QUIThread(QThread, Bico_QThread):
         while True:
             if(not self.MainTask()):
                 break
+        
+        # self.deleteLater()
 
     def create(custom_class=None, qin=None, qin_owner=0, qout=None, qout_owner=0, obj_name="", ui_path="", parent=None):
         """
@@ -157,21 +166,6 @@ class Bico_QUIThread(QThread, Bico_QThread):
             return custom_class(qin, qin_owner, qout, qout_owner, obj_name, ui_path, parent)
         else:
             return None
-
-    def remove(obj_name=""):
-        """
-        Request removal of a thread by name.
-
-        Returns
-        -------
-        int
-            1 if removed, 0 otherwise.
-        """
-        if (__class__.thread_hash.get(obj_name) != None):
-            mess_data = Bico_QMessData("terminate", "")
-            __class__.thread_hash[obj_name].qinEnqueue(mess_data)
-            return 1
-        return 0
 
     def getThreadHash():
         """
@@ -204,7 +198,7 @@ class Bico_QUIThread(QThread, Bico_QThread):
         __class__.main_app = app
 
     @Slot(str)
-    def selfRemove(obj_name):
+    def selfRemove(objectName):
         """
         Remove a thread from the thread hash.
 
@@ -213,8 +207,20 @@ class Bico_QUIThread(QThread, Bico_QThread):
         obj_name : str
         """
         __class__.thread_hash_mutex.lock()
-        __class__.thread_hash.pop(obj_name)
+        obj = __class__.thread_hash.pop(objectName)
         __class__.thread_hash_mutex.unlock()
+        
+        if obj._ui_path != "" and obj._engine is not None:
+            root_object = None
+            if obj._engine.rootObjects():
+                root_object = obj._engine.rootObjects()[0]
+            
+            if root_object:
+                obj.toUI.disconnect(root_object.fromThread)
+                root_object.toThread.disconnect(obj.fromUI)
+
+            del obj._engine
+            obj._engine = None
 
     @Slot(str, "QVariant")
     def fromUI(self, mess, data):

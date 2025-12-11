@@ -20,28 +20,21 @@ class Task1(Bico_QUIThread):
     i = 0
     ex_data_obj = Task1_Data()
 
-    def __init__(self, qin=None, qin_owner=0, qout=None, qout_owner=0, obj_name="", ui_path="", parent=None):
+    def cleanupChildren(self):
         """
-        Initialize Task1 with a list to track child threads.
+        Cleanup child threads before this thread is destroyed.
         """
-        super().__init__(qin, qin_owner, qout, qout_owner, obj_name, ui_path, parent)
-        self.child_threads = []
-
-    def __del__(self):
-        """
-        Destructor with custom cleanup logic.
-        """
-        # Clean up child threads by sending terminate message
-        for child_name in self.child_threads:
-            thread = Bico_QUIThread.getThreadHash().get(child_name)
-            if thread is not None:
-                mess_data = Bico_QMessData("terminate", "")
-                thread.qinEnqueue(mess_data)
-        
-        # Call parent destructor if it exists
-        if hasattr(super(), '__del__'):
-            super().__del__()
+        # Get all children from this QObject's children() and terminate them
+        child_list = self.children()
+        for child in child_list:
+            thread = child
+            mess_data = Bico_QMessData("terminate", "")
+            thread.qinEnqueue(mess_data)
             
+            # Wait for child thread to finish
+            if thread.isRunning():
+                thread.wait(5000)  # Wait up to 5 seconds
+
     def MainTask(self):
         """
         Main task loop for the thread.
@@ -61,6 +54,7 @@ class Task1(Bico_QUIThread):
             data = input.data()
             if (mess == "terminate"):            
                 continue_to_run = 0
+                self.cleanupChildren()
             elif (mess == "num1"):
                 print(self.objectName() + " " + mess + " " + str(self.ex_data_obj.getData_1()))
             elif (mess == "num2"):
@@ -94,11 +88,10 @@ class Task1(Bico_QUIThread):
                     Bico_QMutexQueue(), 
                     1, 
                     thread_name, 
-                    "qrc:/Client_Code/Task1/UI/Task1Content/App.qml"
+                    "qrc:/Client_Code/Task1/UI/Task1Content/App.qml",
+                    self # set parent
                 )
                 Bico_QUIThread.getThreadHash()[thread_name].start()
-                # Add child thread to the list for cleanup
-                self.child_threads.append(thread_name)
             elif (mess == "size"):
                 print(self.objectName() + " " + mess + " " + str(data.width()) + str(data.height()))
                 self.toUI.emit(mess, data)
