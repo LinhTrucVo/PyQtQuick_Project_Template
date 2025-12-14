@@ -121,19 +121,8 @@ class Bico_QUIThread(QThread, Bico_QThread):
         parent : QObject
             Parent object.
         """
-        QThread.__init__(self, None)
+        QThread.__init__(self, parent)
         Bico_QThread.__init__(self, qin, qin_owner, qout, qout_owner)
-        
-        # Move this thread object to the main thread for proper signal handling
-        # without this, the connection from thread to UI in EngineLoader.createEngine will not work
-        if __class__.main_app is not None:
-            self.moveToThread(__class__.main_app.thread())
-        
-        # Set parent after moveToThread to ensure proper thread affinity
-        # Otherwise, the parent-child relationship is not correctly established in mainapp_context
-        # -> in that case, parent will have no children
-        if parent is not None:
-            self.setParent(parent)
         
         self.setObjectName(obj_name)
         __class__.thread_hash_mutex.lock()
@@ -231,16 +220,76 @@ class Bico_QUIThread(QThread, Bico_QThread):
 
     def create(custom_class=None, qin=None, qin_owner=0, qout=None, qout_owner=0, obj_name="", ui_path="", parent=None):
         """
-        Create a new thread if not already existing.
+        Factory method to create a new thread instance if not already existing.
+        
+        Uses the ThreadFactory pattern to ensure thread-safe creation, especially
+        when creating threads from worker threads that need to be parented to the main thread.
+
+        Parameters
+        ----------
+        custom_class : type
+            The class type to instantiate (must inherit from Bico_QUIThread).
+        qin : Bico_QMutexQueue, optional
+            Input queue for the thread.
+        qin_owner : int, optional
+            Ownership flag for input queue (1 if this thread owns it).
+        qout : Bico_QMutexQueue, optional
+            Output queue for the thread.
+        qout_owner : int, optional
+            Ownership flag for output queue (1 if this thread owns it).
+        obj_name : str
+            Unique name/identifier for the thread object.
+        ui_path : str, optional
+            Path to the QML UI file (e.g., "qrc:/path/to/file.qml").
+        parent : QObject, optional
+            Parent QObject for establishing parent-child relationship.
 
         Returns
         -------
         Bico_QUIThread or None
+            Instance of custom_class if created successfully, None if thread name already exists.
         """
-        if (__class__.thread_hash.get(obj_name) == None):
-            return custom_class(qin, qin_owner, qout, qout_owner, obj_name, ui_path, parent)
-        else:
+        # Thread-safe check for existing thread
+        __class__.thread_hash_mutex.lock()
+        exists = obj_name in __class__.thread_hash
+        __class__.thread_hash_mutex.unlock()
+        
+        if exists:
+            print(f"Warning: Thread '{obj_name}' already exists. Returning None.")
             return None
+        
+        # Check if we're in the main thread
+        main_thread = __class__.main_app.thread() if __class__.main_app else None
+        current_thread = QThread.currentThread()
+        
+        if main_thread and current_thread != main_thread:
+            # We're in a worker thread - use factory to create in main thread
+            # This ensures proper parent-child relationships and signal connections
+            __class__.thread_factory.pending_params = {
+                'creator': custom_class,
+                'qin': qin,
+                'qin_owner': qin_owner,
+                'qout': qout,
+                'qout_owner': qout_owner,
+                'obj_name': obj_name,
+                'ui_path': ui_path,
+                'parent': parent
+            }
+            
+            # Invoke factory method in main thread
+            QMetaObject.invokeMethod(
+                __class__.thread_factory,
+                "createThread",
+                Qt.BlockingQueuedConnection  # Wait for creation to complete
+            )
+            
+            # Return the created thread
+            created_thread = __class__.thread_factory.created_thread
+            __class__.thread_factory.created_thread = None  # Clear for next use
+            return created_thread
+        else:
+            # We're in the main thread or no main_app set - create directly
+            return custom_class(qin, qin_owner, qout, qout_owner, obj_name, ui_path, parent)
 
     def getThreadHash():
         """
