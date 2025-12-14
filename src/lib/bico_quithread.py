@@ -7,32 +7,77 @@ Bico_QUIThread
     Thread class for running tasks with QML UI integration.
 """
 
-from PySide6.QtCore import QObject, QThread, QMutex, Signal, Slot, QMetaObject, Qt, Q_ARG
+from PySide6.QtCore import QObject, QThread, QMutex, Signal, Slot, QMetaObject, Qt, Q_ARG, QDirIterator
 from PySide6.QtQml import QQmlApplicationEngine
 
 from .PyQtLib_Project_Template import Bico_QThread
 from .PyQtLib_Project_Template import Bico_QMessData
 
-class EngineLoader(QObject):
+class ThreadFactory(QObject):
+    """Helper class that lives in the main thread to create new threads safely."""
+    
     def __init__(self):
         super().__init__()
+        self.created_thread = None
+        self.pending_params = None
     
-    @Slot('QObject*', str, 'QThread::Priority')
-    def createEngine(self, thread, ui_path, priority):
+    @Slot()
+    def createThread(self):
+        if self.pending_params is None:
+            return
+        
+        # Create new thread directly (we're already in main thread)
+        self.created_thread = self.pending_params['creator'](
+            self.pending_params['qin'],
+            self.pending_params['qin_owner'],
+            self.pending_params['qout'],
+            self.pending_params['qout_owner'],
+            self.pending_params['obj_name'],
+            self.pending_params['ui_path'],
+            self.pending_params['parent']
+        )
+        
+        # Clear pending params
+        self.pending_params = None
+
+class EngineFactory(QObject):
+    """Helper class that lives in the main thread to load QML engines safely."""
+    
+    def __init__(self):
+        super().__init__()
+        self.pending_params = None
+    
+    @Slot()
+    def loadEngine(self):
+        if self.pending_params is None:
+            return
+        
+        thread = self.pending_params['thread']
+        if thread is None:
+            self.pending_params = None
+            return
+        
+        # Create the QML engine
         thread._engine = QQmlApplicationEngine()
-        thread._engine.load(ui_path)
+        
+        # Use cached import paths instead of iterating QRC every time
+        for path in Bico_QUIThread.qml_import_paths:
+            thread._engine.addImportPath(path)
+        
+        # Load the QML file (but window visibility is controlled by QML visible property)
+        thread._engine.load(self.pending_params['ui_path'])
 
         if thread._engine.rootObjects():
             root = thread._engine.rootObjects()[0]
-
+            # Connect signals between thread and UI
             root.toThread.connect(thread.fromUI, Qt.QueuedConnection)
             thread.toUI.connect(root.fromThread, Qt.QueuedConnection)
-        else:
-            thread._engine = None
-
-        QThread.start(thread, priority)
-
-engine_loader = EngineLoader()
+        
+        # Start the thread with the specified priority
+        QThread.start(thread, self.pending_params['priority'])
+        
+        # Clear pending params
+        self.pending_params = None
 
 class Bico_QUIThread(QThread, Bico_QThread):
     """
@@ -50,6 +95,9 @@ class Bico_QUIThread(QThread, Bico_QThread):
     thread_hash = {}
     thread_hash_mutex = QMutex()
     main_app = None
+    thread_factory = None
+    engine_factory = None
+    qml_import_paths = []  # Cached QML import paths from QRC
     toUI = Signal(str, "QVariant")
 
     def __init__(self, qin=None, qin_owner=0, qout=None, qout_owner=0, obj_name="", ui_path="", parent=None):
@@ -91,17 +139,18 @@ class Bico_QUIThread(QThread, Bico_QThread):
         __class__.thread_hash_mutex.lock()
         __class__.thread_hash[obj_name] = self
         __class__.thread_hash_mutex.unlock()
+        
+        # Connect finished signal to selfRemove slot for automatic cleanup
+        self.finished.connect(lambda: __class__.selfRemove(obj_name))
+        
         self._ui_path = ui_path
         self._engine = None
-        self.finished.connect(lambda: __class__.selfRemove(obj_name))
         
     def __del__(self):
         """
-        Destructor. Exits the application if no threads remain.
+        Destructor is now minimal - cleanup is handled by selfRemove slot.
         """
-        if not __class__.thread_hash:
-            if not (__class__.main_app == None):
-                __class__.main_app.exit(0)
+        pass
 
     def start(self, priority=QThread.InheritPriority):
         """
@@ -113,23 +162,48 @@ class Bico_QUIThread(QThread, Bico_QThread):
             Thread priority.
         """
         if (self._ui_path != None) and (self._ui_path != ""):
-            # qrc = QDirIterator(":", QDirIterator.Subdirectories)
-            # while qrc.hasNext():
-            #     self._engine.addImportPath(qrc.next())
-
             # Can not create QQmlApplicationEngine directly if this "start" func
             # is called by worker Thread (not main thread), because
             # QQmlApplicationEngine must be created in main thread.
-            # That why using QMetaObject.invokeMethod to call createEngine
-            # which is a slot in EngineLoader object living in main thread (globally).
-            QMetaObject.invokeMethod(
-                engine_loader,              # object in main thread
-                "createEngine",         # method to call (must be slot or invokable)
-                Qt.QueuedConnection,    # don't know why QueuedConnection, but if using Direct and Blocking option, the software will be freezed not response
-                Q_ARG("QObject*", self),    # pass thread object
-                Q_ARG(str, self._ui_path),  # pass UI path
-                Q_ARG("QThread::Priority", priority)  # pass priority enum
-            )
+            # That's why using EngineFactory to handle engine creation in main thread.
+
+            # Check if we're in the main thread
+            main_thread = __class__.main_app.thread()
+            current_thread = QThread.currentThread()
+            
+            if current_thread == main_thread:
+                # We're in the main thread, create engine directly
+                self._engine = QQmlApplicationEngine()
+                
+                # Use cached import paths instead of iterating QRC every time
+                for path in __class__.qml_import_paths:
+                    self._engine.addImportPath(path)
+                
+                # Load the QML file (but window visibility is controlled by QML visible property)
+                self._engine.load(self._ui_path)
+
+                if self._engine.rootObjects():
+                    root = self._engine.rootObjects()[0]
+                    # Connect signals between thread and UI
+                    root.toThread.connect(self.fromUI, Qt.QueuedConnection)
+                    self.toUI.connect(root.fromThread, Qt.QueuedConnection)
+                
+                # Start the thread with the specified priority
+                QThread.start(self, priority)
+            else:
+                # We're in a worker thread, must use factory to create engine in main thread
+                __class__.engine_factory.pending_params = {
+                    'thread': self,
+                    'ui_path': self._ui_path,
+                    'priority': priority
+                }
+                # Use DirectConnection if already in main thread, else QueuedConnection
+                connection_type = Qt.DirectConnection if current_thread == main_thread else Qt.QueuedConnection
+                QMetaObject.invokeMethod(
+                    __class__.engine_factory,
+                    "loadEngine",
+                    connection_type
+                )
         else:
             QThread.start(self, priority)
 
@@ -152,7 +226,8 @@ class Bico_QUIThread(QThread, Bico_QThread):
             if(not self.MainTask()):
                 break
         
-        # self.deleteLater()
+        # No deleteLater() here - cleanup is handled by selfRemove() 
+        # which is called when the 'finished' signal is emitted
 
     def create(custom_class=None, qin=None, qin_owner=0, qout=None, qout_owner=0, obj_name="", ui_path="", parent=None):
         """
@@ -197,31 +272,85 @@ class Bico_QUIThread(QThread, Bico_QThread):
         """
         __class__.main_app = app
 
+    def initializeFactories():
+        """
+        Initialize global factory instances (they live in main thread).
+        This MUST be called from the main thread before any worker threads are created.
+        """
+        # Initialize global factory instances
+        if __class__.thread_factory is None:
+            __class__.thread_factory = ThreadFactory()
+        if __class__.engine_factory is None:
+            __class__.engine_factory = EngineFactory()
+        
+        # Cache QML import paths from QRC (only scan once at startup)
+        # without this cache, every thread creation would scan QRC which is inefficient
+        # and we can see the delay on every time a thread's qml engine is created
+        if not __class__.qml_import_paths:
+            qrc = QDirIterator(":", QDirIterator.Subdirectories)
+            while qrc.hasNext():
+                __class__.qml_import_paths.append(qrc.next())
+
+    def getThreadFactory():
+        """
+        Get the thread factory instance.
+
+        Returns
+        -------
+        ThreadFactory
+        """
+        return __class__.thread_factory
+
+    def getEngineFactory():
+        """
+        Get the engine factory instance.
+
+        Returns
+        -------
+        EngineFactory
+        """
+        return __class__.engine_factory
+
     @Slot(str)
     def selfRemove(objectName):
         """
-        Remove a thread from the thread hash.
+        Remove a thread from the thread hash and clean up resources.
 
         Parameters
         ----------
-        obj_name : str
+        objectName : str
         """
-        __class__.thread_hash_mutex.lock()
-        obj = __class__.thread_hash.pop(objectName, None)
-        __class__.thread_hash_mutex.unlock()
+        thread = __class__.thread_hash.get(objectName)
+        if thread is None:
+            return
         
-        if obj is not None and obj._ui_path != "" and obj._engine is not None:
+        # Clean up engine connection
+        if thread._ui_path != "" and thread._engine is not None:
             root_object = None
-            if obj._engine.rootObjects():
-                root_object = obj._engine.rootObjects()[0]
+            if thread._engine.rootObjects():
+                root_object = thread._engine.rootObjects()[0]
             
             if root_object:
-                obj.toUI.disconnect(root_object.fromThread)
-                root_object.toThread.disconnect(obj.fromUI)
+                thread.toUI.disconnect(root_object.fromThread)
+                root_object.toThread.disconnect(thread.fromUI)
 
-            # Use deleteLater() instead of del for Qt objects - safer for cross-thread cleanup
-            obj._engine.deleteLater()
-            obj._engine = None
+            # SAFE: Schedule deletion in the main thread (where _engine was created)
+            # The engine will be deleted by Qt's event loop in the main thread
+            # All root QML objects will be automatically deleted as children of the engine
+            thread._engine.deleteLater()
+            thread._engine = None  # Clear our pointer after scheduling deletion
+        
+        # Remove from hash and schedule for deletion
+        __class__.thread_hash_mutex.lock()
+        __class__.thread_hash.pop(objectName, None)
+        __class__.thread_hash_mutex.unlock()
+        
+        thread.deleteLater()
+        
+        # Exit app if no more threads
+        if len(__class__.thread_hash) < 1:
+            if __class__.main_app is not None:
+                __class__.main_app.exit(0)
 
     @Slot(str, "QVariant")
     def fromUI(self, mess, data):

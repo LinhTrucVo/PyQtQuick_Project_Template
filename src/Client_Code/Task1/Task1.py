@@ -7,7 +7,6 @@ Task1
     Example subclass of Bico_QUIThread for handling messages and UI events.
 """
 
-import random
 from lib import Bico_QMessData
 from lib import Bico_QUIThread
 from lib import Bico_QMutexQueue
@@ -18,6 +17,7 @@ class Task1(Bico_QUIThread):
     Example subclass of Bico_QUIThread for handling messages and UI events.
     """
     i = 0
+    count = 0  # Static count for thread naming
     ex_data_obj = Task1_Data()
 
     def cleanupChildren(self):
@@ -27,13 +27,16 @@ class Task1(Bico_QUIThread):
         # Get all children from this QObject's children() and terminate them
         child_list = self.children()
         for child in child_list:
-            thread = child
-            mess_data = Bico_QMessData("terminate", "")
-            thread.qinEnqueue(mess_data)
-            
-            # Wait for child thread to finish
-            if thread.isRunning():
-                thread.wait(5000)  # Wait up to 5 seconds
+            if isinstance(child, Bico_QUIThread):
+                thread = child
+                child_name = thread.objectName()
+                mess_data = Bico_QMessData("terminate", "")
+                thread.qinEnqueue(mess_data)
+                print(f"Sent terminate message to child thread: {child_name}")
+                
+                # Wait for child thread to finish, otherwise, the app will be failed and terminated
+                if thread.isRunning():
+                    thread.wait(5000)  # Wait up to 5 seconds
 
     def MainTask(self):
         """
@@ -63,8 +66,8 @@ class Task1(Bico_QUIThread):
                 print(self.objectName() + " " + mess + " " + data)
             elif (mess == "create"):
                 print(self.objectName() + " " + mess + " " + data)
-                random_id = random.randint(1000,9999)
-                thread_name = "subtask_"+str(random_id)
+                Task1.count += 1
+                thread_name = "task_" + str(Task1.count)
                 Bico_QUIThread.create(
                     # Using qml which is intergrated to Qt resource
                     Task1,
@@ -78,8 +81,8 @@ class Task1(Bico_QUIThread):
                 Bico_QUIThread.getThreadHash()[thread_name].start()
             elif (mess == "create_child"):
                 print(self.objectName() + " " + mess + " " + data)
-                random_id = random.randint(1000,9999)
-                thread_name = "subtask_"+str(random_id)
+                Task1.count += 1
+                thread_name = "task_" + str(Task1.count)
                 Bico_QUIThread.create(
                     # Using qml which is intergrated to Qt resource
                     Task1,

@@ -7,7 +7,6 @@ This module initializes the QGuiApplication, sets up the main threads, and loads
 import sys
 import os
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtCore import QDirIterator
 
 from lib import Bico_QMutexQueue
 from lib import Bico_QUIThread
@@ -23,9 +22,12 @@ if __name__ == "__main__":
     app.setQuitOnLastWindowClosed(False)
     Bico_QUIThread.setMainApp(app)
     
-    qrc = QDirIterator(":", QDirIterator.Subdirectories)
-    while qrc.hasNext():
-        print(qrc.next())
+    # Initialize factories in main thread to ensure thread safety
+    Bico_QUIThread.initializeFactories()
+    
+    # # Print all available resource paths (now cached in initializeFactories)
+    # for path in Bico_QUIThread.qml_import_paths:
+    #     print(path)
 #  ------------------------------------------------------------------------------
     Bico_QUIThread.create(
         # # Using pure qml
