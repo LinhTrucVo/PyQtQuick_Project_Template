@@ -108,27 +108,27 @@ class Task1(Bico_QUIThread):
 
         return continue_to_run
 
-    def _handle_terminate(self, data, input_msg):
+    def _handle_terminate(self, data, input_msg_queue):
         """Handle terminate message."""
         self.cleanupChildren()
         return 0  # Signal to stop running
 
-    def _handle_num1(self, data, input_msg):
+    def _handle_num1(self, data, input_msg_queue):
         """Handle num1 message."""
         print(self.objectName() + " num1 " + str(self.ex_data_obj.getData_1()))
         return 1
 
-    def _handle_num2(self, data, input_msg):
+    def _handle_num2(self, data, input_msg_queue):
         """Handle num2 message."""
         print(self.objectName() + " num2 " + str(self.ex_data_obj.getData_2()))
         return 1
 
-    def _handle_text(self, data, input_msg):
+    def _handle_text(self, data, input_msg_queue):
         """Handle text message."""
         print(self.objectName() + " text " + data)
         return 1
 
-    def _handle_create(self, data, input_msg):
+    def _handle_create(self, data, input_msg_queue):
         """Handle create message to create sibling thread."""
         print(self.objectName() + " create " + data)
         Task1.count += 1
@@ -146,7 +146,7 @@ class Task1(Bico_QUIThread):
             thread.start()
         return 1
 
-    def _handle_create_child(self, data, input_msg):
+    def _handle_create_child(self, data, input_msg_queue):
         """Handle create_child message to create child thread."""
         print(self.objectName() + " create_child " + data)
         Task1.count += 1
@@ -165,13 +165,13 @@ class Task1(Bico_QUIThread):
             thread.start()
         return 1
 
-    def _handle_size(self, data, input_msg):
+    def _handle_size(self, data, input_msg_queue):
         """Handle size message."""
         print(self.objectName() + " size " + str(data.width()) + str(data.height()))
         self.toUI.emit("size", data)
         return 1
 
-    def _handle_from_another_thread(self, data, input_msg):
+    def _handle_from_another_thread(self, data, input_msg_queue):
         """Handle from_another_thread message."""
-        print(self.objectName() + " from_another_thread: " + input_msg.src() + " - " + str(data))
+        print(self.objectName() + " from_another_thread: " + input_msg_queue.src() + " - " + str(data))
         return 1
