@@ -15,7 +15,7 @@ from Client_Code.Task1.Task1 import Task1
 current_path = os.getcwd()
 
 # Import the qml resource, do not delete this import
-import resource.resource
+import qt_resource.resource
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)
